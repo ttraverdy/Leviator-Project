@@ -207,9 +207,11 @@ def updatePortFrames(x, y, s, state):
 
     for cpt in xrange(0, 12):
         if state == STATE_TRANSDUCER_OFF:
-            portValue[cpt] = portValue[cpt] | (transducerFramesOff[cpt] & int(transducerBitmask, 2))
+            # temp comment portValue[cpt] = portValue[cpt] | (transducerFramesOff[cpt] & int(transducerBitmask, 2))
+            portValue[cpt] = portValue[cpt] | (transducerFramesParticle[cpt] & int(transducerBitmask, 2))
         elif state == STATE_TRANSDUCER_NB:
-            portValue[cpt] = portValue[cpt] | (transducerFramesNeighbor[cpt] & int(transducerBitmask, 2))
+            # temp comment portValue[cpt] = portValue[cpt] | (transducerFramesNeighbor[cpt] & int(transducerBitmask, 2))
+            portValue[cpt] = portValue[cpt] | (transducerFramesParticle[cpt] & int(transducerBitmask, 2))
         else:
             portValue[cpt] = portValue[cpt] | (transducerFramesParticle[cpt] & int(transducerBitmask, 2))
 
