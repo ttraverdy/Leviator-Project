@@ -1,0 +1,413 @@
+#include <avr/sleep.h>
+#include <avr/power.h>
+
+#define N_PORTS 1
+#define N_DIVS 24
+
+#define WAIT_LOT(a) __asm__ __volatile__ ("nop"); __asm__ __volatile__ ("nop"); __asm__ __volatile__ ("nop");  __asm__ __volatile__ ("nop"); __asm__ __volatile__ ("nop");__asm__ __volatile__ ("nop"); __asm__ __volatile__ ("nop");__asm__ __volatile__ ("nop"); __asm__ __volatile__ ("nop");  __asm__ __volatile__ ("nop"); __asm__ __volatile__ ("nop");__asm__ __volatile__ ("nop");  __asm__ __volatile__ ("nop");  __asm__ __volatile__ ("nop")
+#define N_FRAMES 29
+
+static byte frame = 19;
+static byte animation[N_FRAMES][N_DIVS] = 
+{{0x6,0xc,0xc,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3,0x3,0x3,0x3,0x3,0x6,0x6,0x6,0x6,0x6,0x6},
+{0x6,0x6,0x6,0x6,0x6,0xc,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3,0x3,0x3,0x3,0x6,0x6,0x6},
+{0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3,0x3,0x3},
+{0x3,0x3,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0x3,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc},
+{0x6,0x6,0x6,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6},
+{0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0xc,0x6,0x6,0x6,0x6,0x6},
+{0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0xc,0x6,0x6},
+{0xc,0xc,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x3,0x3,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0xc},
+{0x9,0x9,0xc,0xc,0xc,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x3,0x3,0x9,0x9,0x9,0x9,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0xc,0xc,0xc,0xc,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x3,0x3,0x3,0x9,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0x9,0x9,0x9,0xc,0xc,0xc,0xc,0xc,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x3,0x3,0x3,0x3},
+{0x3,0x3,0x3,0x9,0x9,0x9,0x9,0x9,0x9,0xc,0xc,0xc,0xc,0xc,0xc,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x3,0x3},
+{0x3,0x3,0x3,0x3,0x3,0x3,0x9,0x9,0x9,0x9,0x9,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0x6,0x6,0x6,0x6,0x6,0x3},
+{0x6,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x9,0x9,0x9,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0x6,0x6},
+{0xc,0x6,0x6,0x6,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x9,0x9,0x9,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0xc},
+{0xc,0xc,0xc,0xc,0x6,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x9,0xc,0xc,0xc,0xc,0xc,0xc,0xc},
+{0x7f,0xff,0xff,0xff,0xff,0xff,0x80,0x00,0x00,0x00,0x00,0x00},
+{0xc,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0x9,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x6,0xc,0xc},
+{0x66,0xcc,0xcc,0xcc,0xcc,0xcc,0xcc,0xcc,0xcc,0xcc,0x99,0x99,0x99,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x33,0x66,0x66},
+{0x6,0x6,0x6,0x6,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3},
+{0x3,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0xc,0xc,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x3,0x3,0x3,0x3,0x3,0x3},
+{0x3,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3,0x3,0x3},
+{0x3,0x3,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x3},
+{0x9,0x9,0x3,0x3,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0xc,0xc,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x9,0x9,0x9,0x9,0x9,0x9,0x9,0x9},
+{0x9,0x9,0x9,0x9,0x9,0xc,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x6,0x3,0x9,0x9,0x9,0x9,0x9,0x9}};
+
+
+void setup()
+{
+
+   DDRA = 0b11111111; //vérifié
+   PORTA = 0b00000000; 
+
+   DDRB = 0b11110000; //vérifié
+   PORTB = 0b11110000; 
+
+   DDRC = 0b11111111; //vérifié 
+   PORTC = 0b00000000;
+
+   DDRD = 0b10001111; //vérifié
+   PORTD = 0b10001111; 
+
+   DDRE = 0b00111000;  //vérifié
+   PORTE = 0b00011100; 
+   
+   DDRF = 0b11111111; //vérifié
+   PORTF = 0b00000000; 
+
+   DDRG = 0b00100111;  //vérifié
+   PORTG = 0b00100111; 
+
+   DDRH = 0b01111011;  //vérifié
+   PORTH = 0b11111011; 
+
+   DDRJ = 0b00000011;  //vérifié
+   PORTJ = 0b00000011; 
+
+   DDRK = 0b11111111; //vérifié
+   PORTK = 0b00000000; 
+
+   DDRL = 0b11111111; //vérifié
+   PORTL = 0b00000000; 
+
+
+int cptDiv = 0;
+   ADCSRA = 0;  
+  power_adc_disable ();
+  power_spi_disable();
+  power_twi_disable();
+  power_timer0_disable();
+  power_usart0_disable();
+
+
+ byte* emittingPointer = &animation[frame][0];
+ 
+  LOOP:
+    while(PINB & 0b00001000); 
+      cptDiv = 0;
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+WAIT_LOT(a);
+//delayMicroseconds(1);
+/*
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+
+PORTB= 0b11110000 & emittingPointer[cptDiv];
+PORTE=emittingPointer[cptDiv];
+PORTF=emittingPointer[cptDiv];
+PORTH=emittingPointer[cptDiv];
+PORTJ=emittingPointer[cptDiv];
+PORTG=emittingPointer[cptDiv];
+PORTD=emittingPointer[cptDiv];
+PORTL=emittingPointer[cptDiv];
+PORTC=emittingPointer[cptDiv];
+PORTK=emittingPointer[cptDiv];
+PORTA=emittingPointer[cptDiv++];
+*/
+   cptDiv = 0;
+
+  goto LOOP;
+
+}
+
+void loop(){}
+
