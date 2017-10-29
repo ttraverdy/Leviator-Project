@@ -180,7 +180,7 @@ particulePositionY = 1
 
 # initial creation of the generated file
 # will erase its content if already exists
-arrayFileName = './moveArray16x16.io'
+arrayFileName = './generated/moveArray16x16.io'
 arrayFile = open(arrayFileName, 'w')
 
 # check http://forum.arduino.cc/index.php?topic=387506.0 about progmem and how to put data after code

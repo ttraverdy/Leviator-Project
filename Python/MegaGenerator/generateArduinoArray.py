@@ -1,4 +1,4 @@
-arrayFileName = './moveArray.io'
+arrayFileName = './generated/moveArray.io'
 
 arrayFile = open(arrayFileName,'w')
 

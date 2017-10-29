@@ -182,7 +182,7 @@ particulePositionY = 1
 
 # initial creation of the generated file
 # will erase its content if already exists
-arrayFileName = './moveArray16x16.io'
+arrayFileName = './generated/moveArray16x16.io'
 arrayFile = open(arrayFileName,'w')
 
 # this method generates the code for moving the particle from position x, y to the position w+deltaX and y+deltaY
