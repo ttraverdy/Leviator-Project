@@ -29,16 +29,16 @@ MAX_FRAMES = 12
 MAX_PORTS = 4
 
 transducersPorts = [ 'PORTA','PORTA','PORTA','PORTA','PORTA','PORTA','PORTA','PORTA',
-                     'PORTB','PORTB','PORTB','PORTB','PORTB','PORTB','PORTB','PORTB',
                      'PORTC','PORTC','PORTC','PORTC','PORTC','PORTC','PORTC','PORTC',
-                     'PORTD','PORTD','PORTD','PORTD','PORTD','PORTD','PORTD','PORTD']
+                     'PORTF','PORTF','PORTF','PORTF','PORTF','PORTF','PORTF','PORTF',
+                     'PORTK','PORTK','PORTK','PORTK','PORTK','PORTK','PORTK','PORTK']
 
 transducersBitmask = ['00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000',
                       '00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000',
                       '00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000',
                       '00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000']
 
-arduinoPorts = [ 'PORTA','PORTB','PORTC','PORTD']
+arduinoPorts = [ 'PORTA','PORTC','PORTF','PORTK']
 arduinoPortValues = {}
 
 # we consider that transducers can be at the following state
@@ -264,11 +264,11 @@ def writePortArrayStart ():
     arrayFile.write("#define N_FRAMES 12\n")
     arrayFile.write("\n")
     arrayFile.write("#define OUTPUT_WAVE_A(pointer, d)  PORTA = pointer[d]\n")
-    arrayFile.write("#define OUTPUT_WAVE_B(pointer, d)  PORTB = pointer[d]\n")
     arrayFile.write("#define OUTPUT_WAVE_C(pointer, d)  PORTC = pointer[d]\n")
-    arrayFile.write("#define OUTPUT_WAVE_D(pointer, d)  PORTD = pointer[d]\n")
+    arrayFile.write("#define OUTPUT_WAVE_F(pointer, d)  PORTF = pointer[d]\n")
+    arrayFile.write("#define OUTPUT_WAVE_K(pointer, d)  PORTK = pointer[d]\n")
     arrayFile.write("\n")
-    arrayFile.write("const byte[%d][%d] PROGMEM portValuesTransducerStates = {\n"% (MAX_FRAMES, MAX_PORTS*sizeArray*sizeArray))
+    arrayFile.write("const PROGMEM byte portValuesTransducerStates [%d][%d] = {\n"% (MAX_PORTS*sizeArray*sizeArray, MAX_FRAMES))
     return;
 
 def writePortArrayEnd ():
@@ -277,7 +277,7 @@ def writePortArrayEnd ():
 
 def writeAnimArrayStart ():
     arrayFile.write("\n")
-    arrayFile.write("const byte[%d][%d] PROGMEM portValuesTransducerAnimations = {\n"% (MAX_FRAMES, MAX_PORTS*sizeArray*sizeArray*MAX_ANIM_STEPS))
+    arrayFile.write("const PROGMEM byte portValuesTransducerAnimations [%d][%d] = {\n"% (MAX_PORTS*sizeArray*sizeArray*MAX_ANIM_STEPS, MAX_FRAMES))
     return;
 
 def writeAnimArrayEnd ():
@@ -305,7 +305,7 @@ def writeSetupCode():
     arrayFile.write("\n")
     arrayFile.write("\n")
     arrayFile.write("\n")
-    arrayFile.write("# arduino mega setup code\n")
+    arrayFile.write("// arduino mega setup code\n")
     arrayFile.write("void setup()\n")
     arrayFile.write("{\n")
     arrayFile.write("   DDRC = 0b00001111; //A0 to A3 are the signal outputs\n")
@@ -341,41 +341,41 @@ def writeSetupCode():
     arrayFile.write("\n")
     arrayFile.write("\n")
     arrayFile.write("   byte* emittingPointerA = &portValuesTransducerStates[frame+0][0];\n")
-    arrayFile.write("   byte* emittingPointerB = &portValuesTransducerStates[frame+1][0];\n")
-    arrayFile.write("   byte* emittingPointerC = &portValuesTransducerStates[frame+2][0];\n")
-    arrayFile.write("   byte* emittingPointerD = &portValuesTransducerStates[frame+3][0];\n")
+    arrayFile.write("   byte* emittingPointerC = &portValuesTransducerStates[frame+1][0];\n")
+    arrayFile.write("   byte* emittingPointerF = &portValuesTransducerStates[frame+2][0];\n")
+    arrayFile.write("   byte* emittingPointerK = &portValuesTransducerStates[frame+3][0];\n")
     arrayFile.write("\n")
     arrayFile.write("   byte* animationPointerA = &portValuesTransducerAnimations[frame+0][0];\n")
-    arrayFile.write("   byte* animationPointerB = &portValuesTransducerAnimations[frame+1][0];\n")
-    arrayFile.write("   byte* animationPointerC = &portValuesTransducerAnimations[frame+2][0];\n")
-    arrayFile.write("   byte* animationPointerD = &portValuesTransducerAnimations[frame+3][0];\n")
+    arrayFile.write("   byte* animationPointerC = &portValuesTransducerAnimations[frame+1][0];\n")
+    arrayFile.write("   byte* animationPointerF = &portValuesTransducerAnimations[frame+2][0];\n")
+    arrayFile.write("   byte* animationPointerK = &portValuesTransducerAnimations[frame+3][0];\n")
     arrayFile.write("\n")
     return;
 
 def writeLoopCode():
-    arrayFile.write("  # arduino mega loop code (static particle)\n")
+    arrayFile.write("  // arduino mega loop code (static particle)\n")
     arrayFile.write("  LOOP_STEADY:\n")
     arrayFile.write("    while(PINB & 0b00001000); //wait for pin 11 (B3) to go low \n")
     arrayFile.write("\n")
-    arrayFile.write("    # write to all ports and all frames\n")
+    arrayFile.write("    // write to all ports and all frames\n")
     for nFrame in xrange(0, MAX_FRAMES):
         arrayFile.write("    OUTPUT_WAVE_A(emittingPointerA, %i);\n" % nFrame)
-        arrayFile.write("    OUTPUT_WAVE_B(emittingPointerB, %i);\n" % nFrame)
         arrayFile.write("    OUTPUT_WAVE_C(emittingPointerC, %i);\n" % nFrame)
-        arrayFile.write("    OUTPUT_WAVE_D(emittingPointerD, %i);\n" % nFrame)
+        arrayFile.write("    OUTPUT_WAVE_F(emittingPointerF, %i);\n" % nFrame)
+        arrayFile.write("    OUTPUT_WAVE_K(emittingPointerK, %i);\n" % nFrame)
     arrayFile.write("\n")
     arrayFile.write("  goto LOOP_STEADY;\n")
     arrayFile.write("\n")
     arrayFile.write("\n")
-    arrayFile.write("  # arduino mega loop code (moving particle)\n")
+    arrayFile.write("  // arduino mega loop code (moving particle)\n")
     arrayFile.write("  LOOP_MOVE:\n")
     arrayFile.write("\n")
     for animStep in xrange(0, MAX_ANIM_STEPS):
         for nFrame in xrange(0, MAX_FRAMES):
             arrayFile.write("    OUTPUT_WAVE_A(animationPointerA, %i);\n" % (animStep*MAX_FRAMES+nFrame))
-            arrayFile.write("    OUTPUT_WAVE_B(animationPointerB, %i);\n" % (animStep*MAX_FRAMES+nFrame))
             arrayFile.write("    OUTPUT_WAVE_C(animationPointerC, %i);\n" % (animStep*MAX_FRAMES+nFrame))
-            arrayFile.write("    OUTPUT_WAVE_D(animationPointerD, %i);\n" % (animStep*MAX_FRAMES+nFrame))
+            arrayFile.write("    OUTPUT_WAVE_F(animationPointerF, %i);\n" % (animStep*MAX_FRAMES+nFrame))
+            arrayFile.write("    OUTPUT_WAVE_K(animationPointerK, %i);\n" % (animStep*MAX_FRAMES+nFrame))
     arrayFile.write("\n")
     arrayFile.write("  goto LOOP_MOVE;\n")
     arrayFile.write("\n")
@@ -515,7 +515,7 @@ writeFileHeader ()
 writePortArrayStart()
 for particulePositionX in xrange(0, sizeArray):
     for particulePositionY in xrange(0, sizeArray):
-        arrayFile.write("  # port operations for particule at x=%d y=%d\n" % (particulePositionX, particulePositionY))
+        arrayFile.write("  // port operations for particule at x=%d y=%d\n" % (particulePositionX, particulePositionY))
         arduinoPortValues.clear()
         for transducerPositionX in xrange(0, sizeArray):
             for transducerPositionY in xrange(0, sizeArray):
@@ -538,7 +538,7 @@ for particulePositionX in xrange(0, sizeArray):
         arduinoPortValues.clear()
         destinationParticleX = particulePositionX + 1
         destinationParticleY = particulePositionY
-        arrayFile.write("  # anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
+        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
         if destinationValid (destinationParticleX,destinationParticleY):
             for animStep in xrange(0, MAX_ANIM_STEPS):
                 arduinoPortValues.clear()
@@ -586,7 +586,7 @@ for particulePositionX in xrange(0, sizeArray):
         arduinoPortValues.clear()
         destinationParticleX = particulePositionX
         destinationParticleY = particulePositionY + 1
-        arrayFile.write("  # anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
+        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
         if destinationValid (destinationParticleX,destinationParticleY):
             writeNullAnimationBad()
         else:
@@ -597,7 +597,7 @@ for particulePositionX in xrange(0, sizeArray):
         arduinoPortValues.clear()
         destinationParticleX = particulePositionX - 1
         destinationParticleY = particulePositionY
-        arrayFile.write("  # anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
+        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
         if destinationValid(destinationParticleX, destinationParticleY):
             writeNullAnimationBad()
         else:
@@ -608,7 +608,7 @@ for particulePositionX in xrange(0, sizeArray):
         arduinoPortValues.clear()
         destinationParticleX = particulePositionX - 1
         destinationParticleY = particulePositionY
-        arrayFile.write("  # anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
+        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (particulePositionX, particulePositionY,destinationParticleX,destinationParticleY))
         if destinationValid(destinationParticleX, destinationParticleY):
             writeNullAnimationBad()
         else:
