@@ -516,6 +516,7 @@ def writeLoopCode():
     arrayFile.write("//if (DEBUG_SERIAL) Serial.println (currentParticlePositionY);\n")
     arrayFile.write("memcpy_P(staticState, & portValuesTransducerStates[(currentParticlePositionX * 4 + currentParticlePositionY) * 12], 4 * 12);\n")
     arrayFile.write("int animStep;\n")
+
     for animStep in xrange(0, MAX_ANIM_STEPS):
         arrayFile.write("// animation step\n")
         arrayFile.write("animStep = %i;\n" % animStep)
@@ -524,12 +525,19 @@ def writeLoopCode():
         arrayFile.write("animationPointerA = & animationStates[animStep * 48 + 24];\n")
         arrayFile.write("animationPointerC = & animationStates[animStep * 48 + 36];\n")
         arrayFile.write("\n")
+        arrayFile.write("int cptAnimLoop= 1000;\n")
+        arrayFile.write("\n")
+        arrayFile.write("while (cptAnimLoop--) {\n")
+
         for nFrame in xrange(0, MAX_FRAMES):
             arrayFile.write("    OUTPUT_WAVE_A(animationPointerA, %i);\n" % (animStep * MAX_FRAMES + nFrame))
             arrayFile.write("    OUTPUT_WAVE_C(animationPointerC, %i);\n" % (animStep * MAX_FRAMES + nFrame))
             arrayFile.write("    OUTPUT_WAVE_F(animationPointerF, %i);\n" % (animStep * MAX_FRAMES + nFrame))
             arrayFile.write("    OUTPUT_WAVE_K(animationPointerK, %i);\n" % (animStep * MAX_FRAMES + nFrame))
-            arrayFile.write("    WAIT_LOT();WAIT_LOT();WAIT_LOT();WAIT_LOT();WAIT_LOT();\n")
+            arrayFile.write("    WAIT_LIT();\n")
+
+        arrayFile.write("}\n")
+
     arrayFile.write("\n")
     arrayFile.write("//if (DEBUG_SERIAL) Serial.println(\"New x position\");\n")
     arrayFile.write("//if (DEBUG_SERIAL) Serial.println(currentParticlePositionX);\n")
