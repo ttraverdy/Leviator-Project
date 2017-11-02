@@ -5,9 +5,6 @@
 #
 
 
-
-
-
 # defines constants for generating the code for 2 4x4 transducer arrays
 
 # defines the mapping between the port used on the arduino mega and the transducer
@@ -27,17 +24,17 @@ nbPortsUsed = 32
 MAX_FRAMES = 12
 MAX_PORTS = 4
 
-transducersPorts = ['PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA',
-                    'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC',
-                    'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF',
-                    'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK']
+transducersPorts = ['PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF', 'PORTF',
+                    'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK', 'PORTK',
+                    'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA', 'PORTA',
+                    'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC', 'PORTC']
 
 transducersBitmask = ['00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000',
                       '00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000',
                       '00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000',
                       '00000001', '00000010', '00000100', '00001000', '00010000', '00100000', '01000000', '10000000']
 
-arduinoPorts = ['PORTA', 'PORTC', 'PORTF', 'PORTK']
+arduinoPorts = ['PORTF', 'PORTK', 'PORTA', 'PORTC']
 arduinoPortValues = {}
 
 # we consider that transducers can be at the following state
@@ -175,8 +172,8 @@ transducerAnimationNeighborToNeighbor = [
     [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 ]
 
-particulePositionX = 1
-particulePositionY = 1
+particulePositionX = 0
+particulePositionY = 0
 
 # initial creation of the generated file
 # will erase its content if already exists
@@ -207,9 +204,13 @@ def updatePortFrames(x, y, s, state):
 
     for cpt in xrange(0, 12):
         if state == STATE_TRANSDUCER_OFF:
+            # temp comment
             portValue[cpt] = portValue[cpt] | (transducerFramesOff[cpt] & int(transducerBitmask, 2))
+            # portValue[cpt] = portValue[cpt] | (transducerFramesParticle[cpt] & int(transducerBitmask, 2))
         elif state == STATE_TRANSDUCER_NB:
+            # temp comment if need to
             portValue[cpt] = portValue[cpt] | (transducerFramesNeighbor[cpt] & int(transducerBitmask, 2))
+            # portValue[cpt] = portValue[cpt] | (transducerFramesParticle[cpt] & int(transducerBitmask, 2))
         else:
             portValue[cpt] = portValue[cpt] | (transducerFramesParticle[cpt] & int(transducerBitmask, 2))
 
@@ -255,6 +256,7 @@ def writeFileHeader():
     arrayFile.write("#include <avr/sleep.h>\n")
     arrayFile.write("#include <avr/power.h>\n")
     arrayFile.write("\n")
+    arrayFile.write("#define DEBUG_SERIAL true\n")
     return
 
 
@@ -270,15 +272,20 @@ def writePortArrayStart():
     arrayFile.write("#define OUTPUT_WAVE_F(pointer, d)  PORTF = pointer[d]\n")
     arrayFile.write("#define OUTPUT_WAVE_K(pointer, d)  PORTK = pointer[d]\n")
     arrayFile.write("\n")
+    arrayFile.write("# define WAIT_LOT(a) __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");  __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");__asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");__asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");  __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");__asm__ __volatile__ (\"nop\");  __asm__ __volatile__ (\"nop\");  __asm__ __volatile__ (\"nop\");\n")
+    arrayFile.write("# define WAIT_MID(a) __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");  __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");__asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");__asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");\n")
     arrayFile.write("# define WAIT_LIT(a) __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\"); __asm__ __volatile__ (\"nop\");\n")
     arrayFile.write("\n")
     arrayFile.write("# define N_BUTTONS 4\n")
     arrayFile.write("byte buttonsPort = 0;\n")
+    arrayFile.write("bool buttonReleased;\n")
     arrayFile.write("bool anyButtonPressed;\n")
     arrayFile.write("bool buttonPressed[N_BUTTONS];\n")
 
-    arrayFile.write("const PROGMEM byte portValuesTransducerStates[%d][%d] = {\n" % (
-        MAX_PORTS * sizeArray * sizeArray, MAX_FRAMES))
+    # need to use single dimension for doing memcpy later
+    arrayFile.write("const PROGMEM byte portValuesTransducerStates[%d] = {\n" % (
+        MAX_PORTS * sizeArray * sizeArray * MAX_FRAMES))
+
     return
 
 def writePortArrayEnd():
@@ -298,14 +305,11 @@ def writePortValues():
     for nPort in xrange(0, MAX_PORTS):
         portName = arduinoPorts[nPort]
         portFrames = arduinoPortValues[portName]
-
-        arrayFile.write("{")
         for nFrame in xrange(0, MAX_FRAMES):
             val = portFrames[nFrame]
             arrayFile.write("%d " % val)
             if nFrame < (MAX_FRAMES - 1):
                 arrayFile.write(", ")
-        arrayFile.write("}")
         if nPort < (MAX_PORTS - 1):
             arrayFile.write(", ")
     return
@@ -317,6 +321,9 @@ def writeSetupCode():
     arrayFile.write("// arduino mega setup code\n")
     arrayFile.write("void setup()\n")
     arrayFile.write("{\n")
+    arrayFile.write("   // uncoment to allow console debug\n")
+    arrayFile.write("   if (DEBUG_SERIAL) Serial.begin(9600);\n")
+    arrayFile.write("   \n")
     arrayFile.write("   DDRA = 0b11111111; //A0 to A5 are the signal outputs\n")
     arrayFile.write("   PORTA = 0b00000000;\n")
     arrayFile.write("   \n")
@@ -350,48 +357,48 @@ def writeSetupCode():
     arrayFile.write("   DDRK = 0b11111111;\n")
     arrayFile.write("   PORTK = 0b00000000;\n")
     arrayFile.write("   \n")
+    arrayFile.write("   int buttonValue0 = 0;\n")
+    arrayFile.write("   int buttonValue1 = 0;\n")
+    arrayFile.write("   int buttonValue2 = 0;\n")
+    arrayFile.write("   int buttonValue3 = 0;\n")
+    arrayFile.write("   int buttonValue4 = 0;\n")
     arrayFile.write("   \n")
-    arrayFile.write("   //pinMode(10, OUTPUT); //pin 10 (B2) will generate a 40kHz signal to sync \n")
-    arrayFile.write("   //pinMode(11, INPUT_PULLUP); //pin 11 (B3) is the sync in\n")
-    arrayFile.write("   //please connect pin 10 to pin 11\n")
-    arrayFile.write("\n")
-    arrayFile.write("   // set all needed pins to outpur mode\n")
-    arrayFile.write("   //for (int i = 2; i < 8; ++i){ //pin 2 to 7 (D2 to D7) are inputs for the buttons\n")
-    arrayFile.write("   // pinMode(i, INPUT_PULLUP);\n")
-    arrayFile.write("   //}\n")
-    arrayFile.write("\n")
-    arrayFile.write("  // generate a sync signal of 40khz in pin 10\n")
-    arrayFile.write("  //noInterrupts();           // disable all interrupts\n")
-    arrayFile.write("  //TCCR1A = bit (WGM10) | bit (WGM11) | bit (COM1B1); // fast PWM, clear OC1B on compare\n")
-    arrayFile.write("  //TCCR1B = bit (WGM12) | bit (WGM13) | bit (CS10);   // fast PWM, no prescaler\n")
-    arrayFile.write("  //OCR1A =  (F_CPU / 40000L) - 1;\n")
-    arrayFile.write("  //OCR1B = (F_CPU / 40000L) / 2;\n")
-    arrayFile.write("  //interrupts();             // enable all interrupts\n")
+    arrayFile.write("   int currentParticlePositionX = 0;\n")
+    arrayFile.write("   int currentParticlePositionY = 0;\n")
+    arrayFile.write("   \n")
+    arrayFile.write("   // set buttons for left right up down - no reset for now\n")
+    arrayFile.write("   // problem with INPUT_PULLUP on mega, need 10k ressitor - random values with INPUT_PULLUP\n")
+    arrayFile.write("   pinMode(50, INPUT);\n")
+    arrayFile.write("   pinMode(51, INPUT);\n")
+    arrayFile.write("   pinMode(52, INPUT);\n")
+    arrayFile.write("   pinMode(53, INPUT);\n")
     arrayFile.write("\n")
     arrayFile.write("  // disable everything that we do not need \n")
     arrayFile.write("  ADCSRA = 0;  // ADC\n")
-    arrayFile.write("  power_adc_disable ();\n")
-    arrayFile.write("  power_spi_disable();\n")
-    arrayFile.write("  power_twi_disable();\n")
-    arrayFile.write("  power_timer0_disable();\n")
-    arrayFile.write("  power_usart0_disable();\n")
-    arrayFile.write("  //Serial.begin(115200);\n")
+    arrayFile.write("  if (!DEBUG_SERIAL) {\n")
+    arrayFile.write("      power_adc_disable ();\n")
+    arrayFile.write("      power_spi_disable();\n")
+    arrayFile.write("      power_twi_disable();\n")
+    arrayFile.write("      power_timer0_disable();\n")
+    arrayFile.write("      power_usart0_disable();\n")
+    arrayFile.write("      //Serial.begin(115200);\n")
+    arrayFile.write("  }\n")
     arrayFile.write("\n")
-    arrayFile.write("byte staticState[4][12];\n")
-    arrayFile.write("byte animationStates[4 * 16][12];\n")
+    arrayFile.write("byte staticState[4*12];\n")
+    arrayFile.write("byte animationStates[4*16*12];\n")
     arrayFile.write("\n")
-    arrayFile.write("memcpy_P(staticState, portValuesTransducerStates, 4 * 12);\n")
+    arrayFile.write("memcpy_P(staticState, &portValuesTransducerStates[(currentParticlePositionX*4+currentParticlePositionY)*12], 4 * 12);\n" )
     arrayFile.write("memccpy_P(animationStates, portValuesTransducerAnimations2, 10, 16 * 4 * 12);\n")
     arrayFile.write("\n")
-    arrayFile.write("   byte* emittingPointerA = &staticState[frame+0][0];\n")
-    arrayFile.write("   byte* emittingPointerC = &staticState[frame+1][0];\n")
-    arrayFile.write("   byte* emittingPointerF = &staticState[frame+2][0];\n")
-    arrayFile.write("   byte* emittingPointerK = &staticState[frame+3][0];\n")
+    arrayFile.write("   byte* emittingPointerF = &staticState[0*12];\n")
+    arrayFile.write("   byte* emittingPointerK = &staticState[1*12];\n")
+    arrayFile.write("   byte* emittingPointerA = &staticState[2*12];\n")
+    arrayFile.write("   byte* emittingPointerC = &staticState[3*12];\n")
     arrayFile.write("\n")
-    arrayFile.write("   byte* animationPointerA = &animationStates[frame+0][0];\n")
-    arrayFile.write("   byte* animationPointerC = &animationStates[frame+1][0];\n")
-    arrayFile.write("   byte* animationPointerF = &animationStates[frame+2][0];\n")
-    arrayFile.write("   byte* animationPointerK = &animationStates[frame+3][0];\n")
+    arrayFile.write("   byte* animationPointerA;\n")
+    arrayFile.write("   byte* animationPointerC;\n")
+    arrayFile.write("   byte* animationPointerF;\n")
+    arrayFile.write("   byte* animationPointerK;\n")
     arrayFile.write("\n")
     return
 
@@ -399,14 +406,14 @@ def writeSetupCode():
 def writeLoopCode():
     arrayFile.write("  // arduino mega loop code (static particle)\n")
     arrayFile.write("  LOOP_STEADY:\n")
-    arrayFile.write("    while(PINB & 0b00001000); //wait for pin 11 (B3) to go low \n")
     arrayFile.write("\n")
-    arrayFile.write("    buttonsPort = PINB;\n")
-    arrayFile.write("    anyButtonPressed = (buttonsPort & 0b11110000) != 0b11110000;\n")
-    arrayFile.write("    buttonPressed[0] = buttonsPort & 0b00010000;\n")
-    arrayFile.write("    buttonPressed[1] = buttonsPort & 0b00100000;\n")
-    arrayFile.write("    buttonPressed[2] = buttonsPort & 0b01000000;\n")
-    arrayFile.write("    buttonPressed[3] = buttonsPort & 0b10000000;\n")
+    arrayFile.write("    // read port directly, digitalRead uses too many cylce (4 DR = 15khz);\n")
+    arrayFile.write("    buttonsPort = PINB & 0b00001111;\n")
+    arrayFile.write("    buttonPressed[0] = buttonsPort & 0b0000001;\n")
+    arrayFile.write("    buttonPressed[1] = buttonsPort & 0b0000010;\n")
+    arrayFile.write("    buttonPressed[2] = buttonsPort & 0b0000100;\n")
+    arrayFile.write("    buttonPressed[3] = buttonsPort & 0b0001000;\n")
+    arrayFile.write("    anyButtonPressed = buttonsPort;\n")
     arrayFile.write("\n")
     arrayFile.write("    // write to all ports and all frames\n")
     for nFrame in xrange(0, MAX_FRAMES):
@@ -414,44 +421,122 @@ def writeLoopCode():
         arrayFile.write("    OUTPUT_WAVE_C(emittingPointerC, %i);\n" % nFrame)
         arrayFile.write("    OUTPUT_WAVE_F(emittingPointerF, %i);\n" % nFrame)
         arrayFile.write("    OUTPUT_WAVE_K(emittingPointerK, %i);\n" % nFrame)
+        arrayFile.write("    WAIT_LIT();\n")
     arrayFile.write("\n")
+    arrayFile.write("    // if button pressed then go to sending no signal\n")
     arrayFile.write("    if (anyButtonPressed) {\n")
-    arrayFile.write("        goto LOOP_NOSIGNAL;\n")
+    arrayFile.write("      if (buttonReleased) {\n")
+    arrayFile.write("        buttonReleased = false;\n")
+    arrayFile.write("        if (DEBUG_SERIAL) Serial.println (\"Button pressed\");\n")
+    arrayFile.write("        goto LOOP_MOVE;\n")
+    arrayFile.write("      }\n")
+    arrayFile.write("    } else {\n")
+    arrayFile.write("      if (!buttonReleased) {\n")
+    arrayFile.write("        buttonReleased = true;\n")
+    arrayFile.write("        if (DEBUG_SERIAL) Serial.println (\"Button released\");\n")
+    arrayFile.write("      }\n")
     arrayFile.write("    }\n")
+    arrayFile.write("\n")
     arrayFile.write("    goto LOOP_STEADY;\n")
     arrayFile.write("\n")
-    arrayFile.write("//\n")
-    arrayFile.write("// arduino mega loop code (moving particle)\n")
-    arrayFile.write("//\n")
+    arrayFile.write("  //\n")
+    arrayFile.write("  // arduino no signal loop\n")
+    arrayFile.write("  //\n")
     arrayFile.write("  LOOP_NOSIGNAL:\n")
-    arrayFile.write("\n")
-    arrayFile.write("    while (PINB & 0b00001000); // wait for pin 11 (B3) to go low\n")
-    arrayFile.write("\n")
     arrayFile.write("    WAIT_LIT();\n")
     arrayFile.write("    WAIT_LIT();\n")
-    arrayFile.write("\n")
-    arrayFile.write("    buttonsPort = PINB;\n")
-    arrayFile.write("    anyButtonPressed = (buttonsPort & 0b11110000) != 0b11110000;\n")
-    arrayFile.write("    buttonPressed[0] = buttonsPort & 0b00010000;\n")
-    arrayFile.write("    buttonPressed[1] = buttonsPort & 0b00100000;\n")
-    arrayFile.write("    buttonPressed[2] = buttonsPort & 0b01000000;\n")
-    arrayFile.write("    buttonPressed[3] = buttonsPort & 0b10000000;\n")
-    arrayFile.write("    if (anyButtonPressed){\n")
-    arrayFile.write("        goto LOOP_STEADY;\n")
-    arrayFile.write("    }\n")
     arrayFile.write("    goto LOOP_NOSIGNAL;\n")
     arrayFile.write("\n")
+    arrayFile.write("  //\n")
     arrayFile.write("  // arduino mega loop code (moving particle)\n")
+    arrayFile.write("  //\n")
     arrayFile.write("  LOOP_MOVE:\n")
+    arrayFile.write("    // maxIndex : 16 positions, 4 directions, 16 anim seps, 4 ports, 12 frames 49152 - 2*24576\n")
+    arrayFile.write("    int maxIndex =  16 * 4 * 16 * 4 * 12;\n")
+    arrayFile.write("    int index = 0;\n")
+    arrayFile.write("    if (buttonPressed[0]  == true) {\n")
+    arrayFile.write("        // button 0 is for x = x + 1\n")
+    arrayFile.write("        // compute the index in the animation array\n")
+    arrayFile.write("        index =  (4 *currentParticlePositionX + currentParticlePositionY) * 4* ( 16 * 4 * 12 ) + 0 *  ( 16 * 4 * 12);\n")
+    arrayFile.write("        // if index more than half total size, use second array in progmem;\n")
+    arrayFile.write("        // copy also final position memcpy_P(staticState, portValuesTransducerStates, 4 * 12);\n")
+    arrayFile.write("        if (index < maxIndex/2) {\n")
+    arrayFile.write("           memcpy_P(animationStates, &portValuesTransducerAnimations1[index], 16 * 4 * 12);\n")
+    arrayFile.write("        } else {\n")
+    arrayFile.write("           memcpy_P(animationStates, &portValuesTransducerAnimations2[index-maxIndex/2], 16 * 4 * 12);\n")
+    arrayFile.write("        }\n")
+    arrayFile.write("        // update position\n")
+    arrayFile.write("        currentParticlePositionX = currentParticlePositionX + 1;\n")
+    arrayFile.write("    } else if (buttonPressed[1]  == true) {\n")
+    arrayFile.write("        // button 1 is for y = y + 1\n")
+    arrayFile.write("        // compute the index in the animation array\n")
+    arrayFile.write("        index =  (4 *currentParticlePositionX + currentParticlePositionY) * 4* ( 16 * 4 * 12 ) + 1 *  ( 16 * 4 * 12) ;\n")
+    arrayFile.write("        // if index more than half total size, use second array in progmem;\n")
+    arrayFile.write("        // copy also final position memcpy_P(staticState, portValuesTransducerStates, 4 * 12);\n")
+    arrayFile.write("        if (index < maxIndex / 2) {\n")
+    arrayFile.write("        memcpy_P(animationStates, & portValuesTransducerAnimations1[index], 16 * 4 * 12);\n")
+    arrayFile.write("        } else {\n")
+    arrayFile.write("        memcpy_P(animationStates, & portValuesTransducerAnimations2[index-maxIndex / 2], 16 * 4 * 12);\n")
+    arrayFile.write("        }\n")
+    arrayFile.write("        // update position\n")
+    arrayFile.write("        currentParticlePositionY = currentParticlePositionY + 1;\n")
+    arrayFile.write("    } else if (buttonPressed[2]  == true) {\n")
+    arrayFile.write("        // button 2 is for x = x - 1\n")
+    arrayFile.write("        // compute the index in the animation array\n")
+    arrayFile.write("        index =  (4 *currentParticlePositionX + currentParticlePositionY) * 4* ( 16 * 4 * 12 ) + 2 *  ( 16 * 4 * 12) ;\n")
+    arrayFile.write("        // if index more than half total size, use second array in progmem;\n")
+    arrayFile.write("        // copy also final position memcpy_P(staticState, portValuesTransducerStates, 4 * 12);\n")
+    arrayFile.write("        if (index < maxIndex / 2) {\n")
+    arrayFile.write("        memcpy_P(animationStates, & portValuesTransducerAnimations1[index], 16 * 4 * 12);\n")
+    arrayFile.write("        } else {\n")
+    arrayFile.write("        memcpy_P(animationStates, & portValuesTransducerAnimations2[index-maxIndex / 2], 16 * 4 * 12);\n")
+    arrayFile.write("        }\n")
+    arrayFile.write("        // update position\n")
+    arrayFile.write("        currentParticlePositionX = currentParticlePositionX - 1;\n")
+    arrayFile.write("    } else if (buttonPressed[3]  == true) {\n")
+    arrayFile.write("        // button 3 is for y = y - 1\n")
+    arrayFile.write("        // compute the index in the animation array\n")
+    arrayFile.write("        index =  (4 *currentParticlePositionX + currentParticlePositionY) * 4* ( 16 * 4 * 12 ) + 3 *  ( 16 * 4 * 12) ;\n")
+    arrayFile.write("        // if index more than half total size, use second array in progmem;\n")
+    arrayFile.write("        // copy also final position memcpy_P(staticState, portValuesTransducerStates, 4 * 12);\n")
+    arrayFile.write("        if (index < maxIndex / 2) {\n")
+    arrayFile.write("        memcpy_P(animationStates, & portValuesTransducerAnimations1[index], 16 * 4 * 12);\n")
+    arrayFile.write("        } else {\n")
+    arrayFile.write(        "        memcpy_P(animationStates, & portValuesTransducerAnimations2[index-maxIndex / 2], 16 * 4 * 12);\n")
+    arrayFile.write("        }\n")
+    arrayFile.write("        // update position\n")
+    arrayFile.write("        currentParticlePositionY = currentParticlePositionY - 1;\n")
+    arrayFile.write("    } else {\n")
+    arrayFile.write("        // not supported yet, go back to steady\n")
+    arrayFile.write("        goto LOOP_STEADY;\n")
+    arrayFile.write("    }\n")
     arrayFile.write("\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.print (currentParticlePositionX);\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.print (\" \");\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.println (currentParticlePositionY);\n")
+    arrayFile.write("memcpy_P(staticState, & portValuesTransducerStates[(currentParticlePositionX * 4 + currentParticlePositionY) * 12], 4 * 12);\n")
+    arrayFile.write("int animStep;\n")
     for animStep in xrange(0, MAX_ANIM_STEPS):
+        arrayFile.write("// animation step\n")
+        arrayFile.write("animStep = %i;\n" % animStep)
+        arrayFile.write("animationPointerF = & animationStates[animStep * 48 + 0];\n")
+        arrayFile.write("animationPointerK = & animationStates[animStep * 48 + 12];\n")
+        arrayFile.write("animationPointerA = & animationStates[animStep * 48 + 24];\n")
+        arrayFile.write("animationPointerC = & animationStates[animStep * 48 + 36];\n")
+        arrayFile.write("\n")
         for nFrame in xrange(0, MAX_FRAMES):
             arrayFile.write("    OUTPUT_WAVE_A(animationPointerA, %i);\n" % (animStep * MAX_FRAMES + nFrame))
             arrayFile.write("    OUTPUT_WAVE_C(animationPointerC, %i);\n" % (animStep * MAX_FRAMES + nFrame))
             arrayFile.write("    OUTPUT_WAVE_F(animationPointerF, %i);\n" % (animStep * MAX_FRAMES + nFrame))
             arrayFile.write("    OUTPUT_WAVE_K(animationPointerK, %i);\n" % (animStep * MAX_FRAMES + nFrame))
+            arrayFile.write("    WAIT_LOT();WAIT_LOT();WAIT_LOT();WAIT_LOT();WAIT_LOT();\n")
     arrayFile.write("\n")
-    arrayFile.write("  goto LOOP_MOVE;\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.println(\"New x position\");\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.println(currentParticlePositionX);\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.println(\"New y position\");\n")
+    arrayFile.write("//if (DEBUG_SERIAL) Serial.println(currentParticlePositionY);\n")
+    arrayFile.write("\n")
+    arrayFile.write("  goto LOOP_STEADY;\n")
     arrayFile.write("\n")
     arrayFile.write("}\n")
     arrayFile.write("void loop(){}\n")
@@ -472,12 +557,12 @@ def writeNullAnimation():
     for stepAnim in xrange(0, MAX_ANIM_STEPS):
         arrayFile.write("  ")
         for nPort in xrange(0, MAX_PORTS):
-            arrayFile.write("{")
+            #arrayFile.write("{")
             for nFrame in xrange(0, MAX_FRAMES):
                 arrayFile.write("0 ")
                 if nFrame < (MAX_FRAMES - 1):
                     arrayFile.write(", ")
-            arrayFile.write("}")
+            #arrayFile.write("}")
             if nPort < (MAX_PORTS - 1):
                 arrayFile.write(", ")
         if stepAnim < (MAX_ANIM_STEPS - 1):
