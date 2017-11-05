@@ -432,7 +432,7 @@ def writeLoopCode():
         arrayFile.write("    OUTPUT_WAVE_C(emittingPointerC, %i);\n" % nFrame)
         arrayFile.write("    OUTPUT_WAVE_F(emittingPointerF, %i);\n" % nFrame)
         arrayFile.write("    OUTPUT_WAVE_K(emittingPointerK, %i);\n" % nFrame)
-        arrayFile.write("    AIT_EXTRA_LIT();\n")
+        arrayFile.write("    WAIT_EXTRA_LIT();\n")
     arrayFile.write("\n")
     arrayFile.write("    // if button pressed then go to sending no signal\n")
     arrayFile.write("    if (anyButtonPressed) {\n")
