@@ -18,7 +18,11 @@ Run the python 'generateMegaCode16x16new.py' program. This will generate a 'move
 ## Leviator in action
 
 Here is the link of the youtube channel of the project : 
-https://www.youtube.com/channel/UCdGrtRZ7fIeak36F0Qd5pNw
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=reaBH0q8Cks
+" target="_blank"><img src="http://img.youtube.com/vi/reaBH0q8Cks/0.jpg" 
+alt="The Leviator, levitation and control of movements using ultrsound" width="240" height="180" border="10" /></a>
+
 
 The actual 100% successful movement speed is 5mm/s, 10mm/s and 15mm/s for 1 bead. If more beads are put in a node, success rate decrease. 
 
