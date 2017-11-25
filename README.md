@@ -29,7 +29,7 @@ The actual 100% successful movement speed is 5mm/s, 10mm/s and 15mm/s for 1 bead
 
 ## Credits and similar projects
 
-Many thanks to Professor [Takayuki Hoshi](http://hoshistar81.jp/) from the University of Tokyo [Pixie Dust Technologies](http://pixiedusttech.com/) and to Mr. [Asier Marzo](https://www.researchgate.net/profile/Asier_Marzo) from the Bristol University[BigLev/TinyLev and Acoustic Tractor Beam projects](http://www.instructables.com/member/Asier%20Marzo/)
+Many thanks to Professor [Takayuki Hoshi](http://hoshistar81.jp/) from the University of Tokyo [Pixie Dust Technologies](http://pixiedusttech.com/) and to Mr. [Asier Marzo](https://www.researchgate.net/profile/Asier_Marzo) from the Bristol University [BigLev/TinyLev and Acoustic Tractor Beam projects](http://www.instructables.com/member/Asier%20Marzo/)
 
 
 
