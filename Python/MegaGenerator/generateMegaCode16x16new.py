@@ -80,6 +80,25 @@ transducerAnimationParticleToNeighbor = [
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 ]
 
+transducerAnimationParticleToNeighbor4 = [
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+]
+
 transducerAnimationParticleToNeighbor3 = [
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00],
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00],
@@ -175,7 +194,28 @@ transducerAnimationParticleToParticle2 = [
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
 ]
 
+# better than transducerAnimationNeighborToParticle4
 transducerAnimationNeighborToParticle = [
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x00],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+    [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+]
+
+# should not decrease number of zero lines
+transducerAnimationNeighborToParticle4 = [
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
     [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
@@ -398,8 +438,9 @@ def writePortArrayStart():
     arrayFile.write("\n")
     arrayFile.write("# define N_BUTTONS 4\n")
     arrayFile.write("\n")
-    arrayFile.write("# define NUMBER_LOOP_ANIM_STEP   8000\n")
+    arrayFile.write("# define NUMBER_LOOP_ANIM_STEP   3000\n")
     arrayFile.write("# define VAL_MUL_4_12_16          768\n")
+    arrayFile.write("# define VAL_MUL_4_12_8           384\n")
     arrayFile.write("# define VAL_MUL_4_12              48\n")
     arrayFile.write("\n")
     arrayFile.write("byte buttonsPort = 0;\n")
@@ -410,7 +451,7 @@ def writePortArrayStart():
     arrayFile.write("unsigned int cptAnimLoop;\n")
     arrayFile.write("    // maxIndex : 16 positions, 4 directions, 16 anim seps, 4 ports, 12 frames 49152 - 2*24576\n")
     arrayFile.write("unsigned int maxIndex = 49152;\n")
-    arrayFile.write("unsigned int maxIndex_1 = 12288 / 3;\n")
+    arrayFile.write("unsigned int maxIndex_1 = 12288;\n")
     arrayFile.write("unsigned int maxIndex_2 = 24576;\n")
     arrayFile.write("unsigned int maxIndex_3 = 36864;\n")
     arrayFile.write("unsigned int maxIndex_4 = 49152;\n")
@@ -498,7 +539,7 @@ def writeSetupCode():
     arrayFile.write("   int buttonValue4 = 0;\n")
     arrayFile.write("   \n")
     arrayFile.write("   int currentParticlePositionX = 1;\n")
-    arrayFile.write("   int currentParticlePositionY = 1;\n")
+    arrayFile.write("   int currentParticlePositionY = 3;\n")
     arrayFile.write("   \n")
     arrayFile.write("   // set buttons for left right up down - no reset for now\n")
     arrayFile.write("   // problem with INPUT_PULLUP on mega, need 10k ressitor - random values with INPUT_PULLUP\n")
@@ -639,22 +680,22 @@ def writeLoopCode():
     arrayFile.write("    }\n")
     arrayFile.write("        // if index more than half total size, use second array in progmem;\n")
     arrayFile.write("        // copy also final position memcpy_P(staticState, portValuesTransducerStates, VAL_MUL_4_12);\n")
-    arrayFile.write("        if (index < maxIndex_2) {\n")
-    arrayFile.write("           memcpy_P(animationStates, &portValuesTransducerAnimations1[index], VAL_MUL_4_12_16);\n")
-    arrayFile.write("        } else {\n")
-    arrayFile.write("           memcpy_P(animationStates, &portValuesTransducerAnimations2[index-maxIndex/2], VAL_MUL_4_12_16);\n")
-    arrayFile.write("        }\n")
+    arrayFile.write("   //     if (index < maxIndex_2) {\n")
+    arrayFile.write("   //        memcpy_P(animationStates, &portValuesTransducerAnimations1[index], VAL_MUL_4_12_16);\n")
+    arrayFile.write("   //     } else {\n")
+    arrayFile.write("   //        memcpy_P(animationStates, &portValuesTransducerAnimations2[index-maxIndex/2], VAL_MUL_4_12_16);\n")
+    arrayFile.write("   //     }\n")
     arrayFile.write("    // if index more than half total size, use second array in progmem;\n")
     arrayFile.write("    // copy also final position memcpy_P(staticState, portValuesTransducerStates, VAL_MUL_4_12);\n")
-    arrayFile.write("   // if (index < maxIndex_1) {\n")
-    arrayFile.write("   //    memcpy_P(animationStates, &portValuesTransducerAnimations1[index], VAL_MUL_4_12_16);\n")
-    arrayFile.write("   // } else if (index <maxIndex_2) {\n")
-    arrayFile.write("   //   memcpy_P(animationStates, &portValuesTransducerAnimations2[index-maxIndex_1], VAL_MUL_4_12_16);\n")
-    arrayFile.write("   // } else if (index <maxIndex_3) {\n")
-    arrayFile.write("   //    memcpy_P(animationStates, &portValuesTransducerAnimations3[index-maxIndex_2], VAL_MUL_4_12_16);\n")
-    arrayFile.write("   // } else {\n")
-    arrayFile.write("   //    memcpy_P(animationStates, &portValuesTransducerAnimations4[index-maxIndex_3], VAL_MUL_4_12_16);\n")
-    arrayFile.write("   // }\n")
+    arrayFile.write("    if (index < maxIndex_1) {\n")
+    arrayFile.write("       memcpy_P(animationStates, &portValuesTransducerAnimations1[index], VAL_MUL_4_12_8);\n")
+    arrayFile.write("    } else if (index <maxIndex_2) {\n")
+    arrayFile.write("      memcpy_P(animationStates, &portValuesTransducerAnimations2[index-maxIndex_1], VAL_MUL_4_12_8);\n")
+    arrayFile.write("    } else if (index <maxIndex_3) {\n")
+    arrayFile.write("       memcpy_P(animationStates, &portValuesTransducerAnimations3[index-maxIndex_2], VAL_MUL_4_12_8);\n")
+    arrayFile.write("    } else {\n")
+    arrayFile.write("       memcpy_P(animationStates, &portValuesTransducerAnimations4[index-maxIndex_3], VAL_MUL_4_12_8);\n")
+    arrayFile.write("    }\n")
     arrayFile.write("\n")
     arrayFile.write("/**if (DEBUG_SERIAL) {\n")
     arrayFile.write("  Serial.print (\"New X=\");\n")
@@ -951,16 +992,16 @@ for particulePositionX in xrange(0, sizeArray):
     # doit donc decouper le tabmleau en petits tableau et gerer les acces ensuite
     if particulePositionX == 0:
         arrayFile.write("const PROGMEM byte portValuesTransducerAnimations1[%d*%d] = {\n" % (
-            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 2, MAX_FRAMES))
-#    if particulePositionX == 1:
-#        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations2[%d*%d] = {\n" % (
-#            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
-    if particulePositionX == 2:
+            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
+    if particulePositionX == 1:
         arrayFile.write("const PROGMEM byte portValuesTransducerAnimations2[%d*%d] = {\n" % (
-            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 2, MAX_FRAMES))
-#    if particulePositionX == 3:
-#        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations4[%d*%d] = {\n" % (
-#            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
+            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
+    if particulePositionX == 2:
+        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations3[%d*%d] = {\n" % (
+            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
+    if particulePositionX == 3:
+        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations4[%d*%d] = {\n" % (
+            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
 
     for particulePositionY in xrange(0, sizeArray):
         # x+1
@@ -1013,16 +1054,16 @@ for particulePositionX in xrange(0, sizeArray):
         else:
             writeNullAnimation()
 
-        # if particulePositionY != (sizeArray - 1):
-        if particulePositionY != (sizeArray - 1) or (particulePositionX != 1 and particulePositionX != 3):
+        if particulePositionY != (sizeArray - 1):
+        # if particulePositionY != (sizeArray - 1) or (particulePositionX != 1 and particulePositionX != 3):
             arrayFile.write(",\n")
 
-#    if particulePositionX == 0:
-#        arrayFile.write("};\n")
+    if particulePositionX == 0:
+        arrayFile.write("};\n")
     if particulePositionX == 1:
         arrayFile.write("};\n")
-#    if particulePositionX == 2:
-#        arrayFile.write("};\n")
+    if particulePositionX == 2:
+        arrayFile.write("};\n")
     if particulePositionX == 3:
         arrayFile.write("};\n")
 
