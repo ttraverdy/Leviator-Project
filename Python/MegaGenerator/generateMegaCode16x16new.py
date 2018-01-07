@@ -469,6 +469,31 @@ def writePortArrayStart():
 
     return
 
+def writePortArrayData():
+    for particulePositionX in xrange(0, sizeArray):
+        for particulePositionY in xrange(0, sizeArray):
+            arrayFile.write("  // port operations for particule at x=%d y=%d\n" % (particulePositionX, particulePositionY))
+            arduinoPortValues.clear()
+            for transducerPositionX in xrange(0, sizeArray):
+                for transducerPositionY in xrange(0, sizeArray):
+                    for transducerSide in xrange(0, sides):
+                        if isNeighborTransducer(transducerPositionX, transducerPositionY, particulePositionX,
+                                                particulePositionY):
+                            updatePortFrames(transducerPositionX, transducerPositionY, transducerSide, STATE_TRANSDUCER_NB)
+                        elif isParticleTransducer(transducerPositionX, transducerPositionY, particulePositionX,
+                                                  particulePositionY):
+                            updatePortFrames(transducerPositionX, transducerPositionY, transducerSide,
+                                             STATE_TRANSDUCER_PART)
+                        else:
+                            updatePortFrames(transducerPositionX, transducerPositionY, transducerSide, STATE_TRANSDUCER_OFF)
+            writePortValues()
+            if particulePositionY<(sizeArray-1) or particulePositionX <(sizeArray-1):
+                arrayFile.write(",\n")
+
+def writePortArrayEnd():
+    arrayFile.write("};\n")
+    return
+
 
 ## ARRAY FOR 3D MOVEMENTS UP DOWN
 def write3DMoveArrayStart():
@@ -509,18 +534,92 @@ def write3DMoveArrayEnd():
     return
 
 
-
-def writePortArrayEnd():
-    arrayFile.write("};\n")
-    return
-
-
 def writeAnimArrayStart():
     arrayFile.write("\n")
 #    arrayFile.write("const PROGMEM byte portValuesTransducerAnimations[%d][%d] = {\n" % (
 #        MAX_PORTS * sizeArray * sizeArray * sides * MAX_ANIM_STEPS, MAX_FRAMES))
     return
 
+def writeAnimArrayData():
+    for particulePositionX in xrange(0, sizeArray):
+        # meme dans progmem, les tableau ne peuvent avoir plus de 32768 entrees
+        # doit donc decouper le tabmleau en petits tableau et gerer les acces ensuite
+        if particulePositionX == 0:
+            arrayFile.write("const PROGMEM byte portValuesTransducerAnimations1[%d*%d] = {\n" % (
+                MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 2, MAX_FRAMES))
+    #    if particulePositionX == 1:
+    #        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations2[%d*%d] = {\n" % (
+    #            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
+        if particulePositionX == 2:
+            arrayFile.write("const PROGMEM byte portValuesTransducerAnimations2[%d*%d] = {\n" % (
+                MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 2, MAX_FRAMES))
+    #    if particulePositionX == 3:
+    #        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations4[%d*%d] = {\n" % (
+    #            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
+
+        for particulePositionY in xrange(0, sizeArray):
+            # x+1
+            arduinoPortValues.clear()
+            destinationParticleX = particulePositionX + 1
+            destinationParticleY = particulePositionY
+            arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
+                particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
+            if destinationValid(destinationParticleX, destinationParticleY):
+                writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
+            else:
+                writeNullAnimation()
+            arrayFile.write(", ")
+            arrayFile.write("\n")
+
+            # y+1
+            arduinoPortValues.clear()
+            destinationParticleX = particulePositionX
+            destinationParticleY = particulePositionY + 1
+            arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
+                particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
+            if destinationValid(destinationParticleX, destinationParticleY):
+                writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
+            else:
+                writeNullAnimation()
+            arrayFile.write(", ")
+            arrayFile.write("\n")
+
+            # x - 1
+            arduinoPortValues.clear()
+            destinationParticleX = particulePositionX - 1
+            destinationParticleY = particulePositionY
+            arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
+                particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
+            if destinationValid(destinationParticleX, destinationParticleY):
+                writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
+            else:
+                writeNullAnimation()
+            arrayFile.write(", ")
+            arrayFile.write("\n")
+
+            # y + 1
+            arduinoPortValues.clear()
+            destinationParticleX = particulePositionX
+            destinationParticleY = particulePositionY - 1
+            arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
+                particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
+            if destinationValid(destinationParticleX, destinationParticleY):
+                writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
+            else:
+                writeNullAnimation()
+
+            # if particulePositionY != (sizeArray - 1):
+            if particulePositionY != (sizeArray - 1) or (particulePositionX != 1 and particulePositionX != 3):
+                arrayFile.write(",\n")
+
+    #    if particulePositionX == 0:
+    #        arrayFile.write("};\n")
+        if particulePositionX == 1:
+            arrayFile.write("};\n")
+    #    if particulePositionX == 2:
+    #        arrayFile.write("};\n")
+        if particulePositionX == 3:
+            arrayFile.write("};\n")
 
 def writePortValues():
     arrayFile.write("  ")
@@ -1102,25 +1201,7 @@ def writeStepsAnimation(particulePositionX, particulePositionY, destinationParti
 # and one for all the animations of a particle going from one position to another one
 writeFileHeader()
 writePortArrayStart()
-for particulePositionX in xrange(0, sizeArray):
-    for particulePositionY in xrange(0, sizeArray):
-        arrayFile.write("  // port operations for particule at x=%d y=%d\n" % (particulePositionX, particulePositionY))
-        arduinoPortValues.clear()
-        for transducerPositionX in xrange(0, sizeArray):
-            for transducerPositionY in xrange(0, sizeArray):
-                for transducerSide in xrange(0, sides):
-                    if isNeighborTransducer(transducerPositionX, transducerPositionY, particulePositionX,
-                                            particulePositionY):
-                        updatePortFrames(transducerPositionX, transducerPositionY, transducerSide, STATE_TRANSDUCER_NB)
-                    elif isParticleTransducer(transducerPositionX, transducerPositionY, particulePositionX,
-                                              particulePositionY):
-                        updatePortFrames(transducerPositionX, transducerPositionY, transducerSide,
-                                         STATE_TRANSDUCER_PART)
-                    else:
-                        updatePortFrames(transducerPositionX, transducerPositionY, transducerSide, STATE_TRANSDUCER_OFF)
-        writePortValues()
-        if particulePositionY<(sizeArray-1) or particulePositionX <(sizeArray-1):
-            arrayFile.write(",\n")
+writePortArrayData()
 writePortArrayEnd()
 
 write3DMoveArrayStart()
@@ -1128,92 +1209,7 @@ write3DMoveArrayData()
 write3DMoveArrayEnd()
 
 writeAnimArrayStart()
-for particulePositionX in xrange(0, sizeArray):
-    # meme dans progmem, les tableau ne peuvent avoir plus de 32768 entrees
-    # doit donc decouper le tabmleau en petits tableau et gerer les acces ensuite
-    if particulePositionX == 0:
-        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations1[%d*%d] = {\n" % (
-            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 2, MAX_FRAMES))
-#    if particulePositionX == 1:
-#        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations2[%d*%d] = {\n" % (
-#            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
-    if particulePositionX == 2:
-        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations2[%d*%d] = {\n" % (
-            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 2, MAX_FRAMES))
-#    if particulePositionX == 3:
-#        arrayFile.write("const PROGMEM byte portValuesTransducerAnimations4[%d*%d] = {\n" % (
-#            MAX_ANIM_STEPS * sizeArray * sizeArray * 4 * MAX_PORTS / 4, MAX_FRAMES))
-
-    for particulePositionY in xrange(0, sizeArray):
-        # x+1
-        arduinoPortValues.clear()
-        destinationParticleX = particulePositionX + 1
-        destinationParticleY = particulePositionY
-        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
-            particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
-        if destinationValid(destinationParticleX, destinationParticleY):
-            writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
-        else:
-            writeNullAnimation()
-        arrayFile.write(", ")
-        arrayFile.write("\n")
-
-        # y+1
-        arduinoPortValues.clear()
-        destinationParticleX = particulePositionX
-        destinationParticleY = particulePositionY + 1
-        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
-            particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
-        if destinationValid(destinationParticleX, destinationParticleY):
-            writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
-        else:
-            writeNullAnimation()
-        arrayFile.write(", ")
-        arrayFile.write("\n")
-
-        # x - 1
-        arduinoPortValues.clear()
-        destinationParticleX = particulePositionX - 1
-        destinationParticleY = particulePositionY
-        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
-            particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
-        if destinationValid(destinationParticleX, destinationParticleY):
-            writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
-        else:
-            writeNullAnimation()
-        arrayFile.write(", ")
-        arrayFile.write("\n")
-
-        # y + 1
-        arduinoPortValues.clear()
-        destinationParticleX = particulePositionX
-        destinationParticleY = particulePositionY - 1
-        arrayFile.write("  // anim from (%d, %d) to (%d, %d)\n" % (
-            particulePositionX, particulePositionY, destinationParticleX, destinationParticleY))
-        if destinationValid(destinationParticleX, destinationParticleY):
-            writeStepsAnimation(particulePositionX, particulePositionY, destinationParticleX, destinationParticleY)
-        else:
-            writeNullAnimation()
-
-        # if particulePositionY != (sizeArray - 1):
-        if particulePositionY != (sizeArray - 1) or (particulePositionX != 1 and particulePositionX != 3):
-            arrayFile.write(",\n")
-
-#    if particulePositionX == 0:
-#        arrayFile.write("};\n")
-    if particulePositionX == 1:
-        arrayFile.write("};\n")
-#    if particulePositionX == 2:
-#        arrayFile.write("};\n")
-    if particulePositionX == 3:
-        arrayFile.write("};\n")
-
-##
-##
-##
-
-
-
+writeAnimArrayData()
 
 ##
 ## start of program
