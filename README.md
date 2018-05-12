@@ -38,7 +38,9 @@ The actual maximum reliable movement speed is 10.5cm per second for 1 to 5 beads
 
 We are planning to make a new Leviator, smaller and modular. 3D pieces of the protoype are available in the STL folder. Here is a photo of the actual prototype of the new Leviator. 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ttraverdy/Leviator-Project/master/IMAGES/P1172850.jpg" width="300"/> 
+  <img src="https://raw.githubusercontent.com/ttraverdy/Leviator-Project/master/IMAGES/P1172850.jpg" width="450"/>
+<p align="center">
+
   <img src="https://raw.githubusercontent.com/ttraverdy/Leviator-Project/master/IMAGES/P1172851.jpg" width="300"/> 
   <img src="https://raw.githubusercontent.com/ttraverdy/Leviator-Project/master/IMAGES/P1172857.jpg" width="300"/> 
 </p>
