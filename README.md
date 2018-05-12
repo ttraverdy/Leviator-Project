@@ -30,8 +30,8 @@ Run the python 'generateMegaCode16x16new.py' program. This will generate a 'move
 
 ## Future improvements
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/ttraverdy/Leviator-Project/master/IMAGES/Chart%20of%20the%20movement%20success%20percentage%20at%20different%20movement%20speeds.png" width="450"/> 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ttraverdy/Leviator-Project/master/IMAGES/Chart%20of%20the%20movement%20success%20percentage%20at%20different%20movement%20speeds.png" width="600"/> 
 </p>
 The actual maximum reliable movement speed is 10.5cm per second for 1 to 5 beads. 100% success rate movement speeds are 0.5cm to 1.5cm/s speeds and speeds from 4.1 to 5.4 cm per second. If more beads are put in a node, the success rate decreases.
 
